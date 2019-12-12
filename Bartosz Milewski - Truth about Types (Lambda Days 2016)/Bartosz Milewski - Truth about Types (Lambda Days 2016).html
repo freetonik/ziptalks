@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-02-14 Thu 19:28 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notes on Bartosz Milewski - Truth about Types (Lambda Days 2016)</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Rakhim Davletkaliyev" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Notes on Bartosz Milewski - Truth about Types (Lambda Days 2016)</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf996a0b">1. Intro</a></li>
+<li><a href="#orga875f92">2. Truth</a></li>
+<li><a href="#org3955cb4">3. Universal constructions in category theory</a>
+<ul>
+<li><a href="#org2854c5d">3.1. Initial object</a></li>
+<li><a href="#org863965f">3.2. Terminal object</a></li>
+</ul>
+</li>
+<li><a href="#org3f22312">4. Negation</a></li>
+<li><a href="#orge35f9bd">5. Cartesian Closed Category</a></li>
+<li><a href="#orge39e874">6. Curry-Howard-Lambek</a></li>
+<li><a href="#org72adfb3">7. Conclusions</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgf996a0b" class="outline-2">
+<h2 id="orgf996a0b"><span class="section-number-2">1</span> Intro</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Category theory abstracts many branches of math. You can describe topology, logic, Banach spaces and other concepts in terms of category theory. Why is it so? Does category theory describe the nature, the intrinsic reality, and we happened to discover it like physicists discover the laws of the universe?
+</p>
+
+<p>
+The main idea of category theory is composition. This is why it is so relevant in programming. Composition is the essence of category theory.
+</p>
+
+<p>
+Is composability intrinsic in nature? It seems like that on a larger scale, and classical physics shows how everything is neatly composable. The ancient idea of atoms is the idea of perfect composability: things are composed with indivisible elementary particles, and the higher you go, the more composable everything is. Atoms make molecules, molecules make objects, object make bigger objects and interact using laws that are themselves composable. Newtonian mechanics describes objects in the universe that follow the rules of interaction that are clearly affecting each other, acting like independent agents.
+</p>
+
+<p>
+But the deeper you go, the less composable it becomes. Two quantum particles don't interact in a simply composable fashion, their wave functions do not just affect each other in a stable manner. Two quantum particles near one another start to behave like a special two-particle state, not two wave functions. This is why quantum theory is so hard to describe and this is probably why physicists struggle with these theories. They go against our intuition of a composable universe.
+</p>
+
+<p>
+So, maybe composability is not intrinsic in nature, maybe it is intrinsic for our limited monkey brains. We need composability in order to deal with the complex reality. Maybe, higher super-beings wouldn't invent category theory at all.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga875f92" class="outline-2">
+<h2 id="orga875f92"><span class="section-number-2">2</span> Truth</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+In logic, there is an axiom that basically says "truth is true", and you don't need to prove it.
+</p>
+
+\begin{eqnarray}
+\frac{}{\top true}\top_I
+\end{eqnarray}
+
+<p>
+In type theory, it corresponds to unit type:
+</p>
+
+\begin{eqnarray}
+():()
+\end{eqnarray}
+
+<p>
+And in category theory it corresponds to the terminal object, which we will cover later.
+</p>
+
+<p>
+Three things look different, but they are actually just different notations for the same concept.
+</p>
+
+<p>
+As for proofs, in logic you'd prove a proposition A by providing some statements:
+</p>
+
+\begin{eqnarray}
+\frac{[...]}{A}
+\end{eqnarray}
+
+<p>
+In type theory, you'd prove that type <b>A</b> is inhabited (has members):
+</p>
+
+\begin{eqnarray}
+\Gamma\vdash x : A
+\end{eqnarray}
+
+<p>
+In the context of categories, a proof would be a morphism from terminal object:
+</p>
+
+\begin{eqnarray}
+1\rightarrow A
+\end{eqnarray}
+</div>
+</div>
+
+<div id="outline-container-org3955cb4" class="outline-2">
+<h2 id="org3955cb4"><span class="section-number-2">3</span> Universal constructions in category theory</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-org2854c5d" class="outline-3">
+<h3 id="org2854c5d"><span class="section-number-3">3.1</span> Initial object</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+An <a href="https://en.wikipedia.org/wiki/Initial_and_terminal_objects">initial object</a> is an object that has a unique arrow to all other objects. Only one arrow per object.
+</p>
+
+
+<div class="figure">
+<p><img src="./img/initial_object.png" alt="initial_object.png" />
+</p>
+</div>
+
+<p>
+In Set, the equivalent would be an empty set \(\varnothing\). A function \(varnothing \rightarrow a\) is a function that maps an element of empty set to any other element of other set. This doesn't make sense: an element of empty set? But this is just an explanation in terms of set theory, and while it doesn't make sense, we can think about this nevertheless, as of "objects defined by their arrow property".
+</p>
+
+<p>
+You can always create a function from an empty set, but you'll never be able to call this function. In the abstract, in vacuum this is true.
+</p>
+
+<p>
+In Haskell there's Absurd function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell">Absurd :: Void -&gt; a
+</pre>
+</div>
+
+<p>
+Which is a reference to "ad absurdum": from falsehood, you can derive anythings. "If pigs can fly, then I am the president".
+</p>
+
+<p>
+<code>Void</code> here represents a type <code>Void</code>, an uninhabited type. This is not the same void-type we use in C/C++.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org863965f" class="outline-3">
+<h3 id="org863965f"><span class="section-number-3">3.2</span> Terminal object</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+The inverse of initial object is the <a href="https://en.wikipedia.org/wiki/Initial_and_terminal_objects">terminal object</a>. An object with a unique arrow from all objects.
+</p>
+
+
+<div class="figure">
+<p><img src="./img/terminal_object.png" alt="terminal_object.png" />
+</p>
+</div>
+
+<p>
+In set, it's a singleton set. Unique function: for every element of set <b>a</b> return the single element of the singleton set. In Haskell, the unit function ignores the argument and returns the one element from the set. The unit type <code>()</code> has one element <code>()</code>.
+</p>
+
+<p>
+Type:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell">unit :: a -&gt; ()
+</pre>
+</div>
+
+<p>
+Element of this type:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-haskell">unit _ -&gt; ()
+</pre>
+</div>
+
+<p>
+If there are many singleton sets, they are isomorphic (i.e., a set of one apple is the same as a set of one orange).
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org3f22312" class="outline-2">
+<h2 id="org3f22312"><span class="section-number-2">4</span> Negation</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Another thing you can construct is negation. <code>Not A</code> corresponds to an arrow (morphism) <code>A -&gt; Void</code>. Why is this a negation?
+</p>
+
+<p>
+In the context of type theory:
+</p>
+
+<ul class="org-ul">
+<li>If <code>A</code> is inhabited (has elements), then <code>A-&gt;Void</code> is not inhabited. Because otherwise you'd be able to create an element of <code>Void</code>, which suppose to have no elements.</li>
+<li>If <code>A</code> is not inhabited (is Void), then <code>Void-&gt;Void</code> is \(id_{void}\).</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge35f9bd" class="outline-2">
+<h2 id="orge35f9bd"><span class="section-number-2">5</span> Cartesian Closed Category</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+Combining these three things, we get a Cartesian Closed Category (CCC):
+</p>
+<ul class="org-ul">
+<li>Has all products (cartesian)</li>
+<li>Has all function objects (exponentials) (this makes it closed)</li>
+<li>Has terminal object (nullary product)</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge39e874" class="outline-2">
+<h2 id="orge39e874"><span class="section-number-2">6</span> Curry-Howard-Lambek</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+This is an extension of Curry-Howard isomorphism. CCC is a model for simply typed lambda calculus. In addition to the fact that simply typed lambda calculus can be a model for logic.
+</p>
+
+<ul class="org-ul">
+<li>Objects are types</li>
+<li>Morphisms are terms (in logic/programming)</li>
+<li>Environment \(\Gamma\) is a prodict of judgements <code>a:A</code></li>
+<li>Empty environment is <code>() : ()</code></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org72adfb3" class="outline-2">
+<h2 id="org72adfb3"><span class="section-number-2">7</span> Conclusions</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+Type theory (typed lambda calculus), category theory (cartesian closed) and logic are all the same, just different notations. There is a lot of cross-polination between these areas. Is the Grand Unified Theory coming soon? <a href="https://en.wikipedia.org/wiki/Homotopy_type_theory">Homotopy Type Theory</a>?
+</p>
+
+<p>
+Maybe.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Rakhim Davletkaliyev</p>
+<p class="date">Created: 2019-02-14 Thu 19:28</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

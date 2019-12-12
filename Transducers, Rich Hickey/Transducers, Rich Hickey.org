@@ -1,0 +1,127 @@
+#+TITLE: Notes on Concurrency Is Not Parallelism (by Rob Pike)
+#+AUTHOR: Rakhim Davletkaliyev
+#+LATEX_CLASS: article
+
+#+LATEX_HEADER: \usepackage{geometry}
+#+LATEX_HEADER: \geometry{a4paper, textwidth=6.5in, textheight=10in, marginparsep=7pt, marginparwidth=.6in}
+#+LATEX_HEADER: \setlength{\parskip}{12pt}
+
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \hypersetup{colorlinks=true, linkcolor=black}
+
+* Intro
+
+What are transducers? The basic idea is to extract the *essence* of map, filter and other functions that transform sequences and collections, and reuse this essence so that it can be applied elsewhere; to recast them as *process transformations*.
+
+The kind of process for which we can use transducers is a succession of steps, where each step is ingesting an input. Building a collection is just one example of a process of that shape. But let us not focus on the idea of a process which performs /building/. Some processes build particular things, other processes are infinite.
+
+Why it's called transducer? It's a real world and it's better than reduce or ingest, which could be considered.
+
+- reduce: lead back, brings something back
+- ingest: carry into
+- transduce: lead across; as inputs are carried into the process, they are led through a series of transformations
+
+Transducers are not a programming thing. We have them in real life, where we usually call them "instructions". For example, consider the instruction to baggage carriers "put the baggage on the plane". While you're doing it:
+
+- break apart pallets
+- remove bags that smell like food
+- label heavy bags
+
+There could be different circumstances (conveyances, sources, sinks). They are irrelevant. Does baggage come and go on trolleys or conveyor belts? We don't care and we don't want to care. This is the real world: unspecified and flexible.
+
+In programming we have something like this — collection function composition:
+
+#+BEGIN_SRC clojure
+(comp
+ (partial mapcat unbundle-pallet)
+ (partial filter non-food?)
+ (partial map label-heavy))
+#+END_SRC
+
+There's a big difference between real world and this programming approach. map, filter, mapcat are functions of sequence → sequence. We model the rules, but they only work on sequences. When we get something new, like stream, channel or observable, none of the rules apply to that.
+
+Another problem is that this code creates intermediate sequences between steps. It's as if we told the baggage guys to take the baggage off *the trolley*, unbundle, put bags on another trolley, check for food smell, put bags on another trolley, etc.
+
+There is no reuse. Every new collection or a process defines its own version of map, filter, mapcat etc. As a result, composed algorithms are needlessly specific and inefficient.
+
+* Creating and using transducers
+
+Let's start with the value propositions right away. This is what we want to achieve.
+
+First, we create a transducer =process-bags=, which is a composition of three transducers.
+
+#+BEGIN_SRC clojure
+(def process-bags
+ (comp
+  (mapcatting unbundle-pallet)
+  (filtering non-food?)
+  (mapping label-heavy)))
+#+END_SRC
+
+=mapcatting=, =filtering= and =mapping= return *transducers*. =process-bags= is a transducer. Transducers modify a process by transforming its reducing function.
+
+Once done, we can go to a completely different context and reuse them.
+
+*Building a concrete collection*. Standard function =into= now has another arity: it can accept a transducer to generate a collection out of something else.
+
+#+BEGIN_SRC clojure
+(into airplane process-bags pallets)
+#+END_SRC
+
+=sequence= can now take a transducer as well and generate a lazy sequence of values.
+
+#+BEGIN_SRC clojure
+(sequence process-bags pallets)
+#+END_SRC
+
+A new function =transduce= works like =reduce=, but takes a transducer, operation, initial value and the source. Here we count the total weight of the bags:
+
+#+BEGIN_SRC clojure
+(transduce
+;;      transducer
+;;          ↓
+   (comp process-bags (mapping weigh-bag))
+;; operation
+;; ↓
+   + 0 pallets)
+;;   ↑    ↑
+;;   |  source
+;; initial value
+#+END_SRC
+
+
+
+#+BEGIN_SRC clojure
+;; a CSP channel that processes bags
+(chan 1 process-bags)
+#+END_SRC
+
+#+BEGIN_SRC clojure
+;; it's an open system
+(observable process-bags pallet-source)
+#+END_SRC
+
+We call processes that can work with transducers (like =into=, =sequence=, =chan=, etc) *transducible processes*. They accept a transducer and use it to transform whatever they do.
+
+# more here
+
+Two papers which describe this idea are:
+
+- [[https://www.cs.ox.ac.uk/files/3390/PRG69.pdf][Lectures on Constructive Functional Programming]], by Richard S. Bird
+- [[https://www.cs.nott.ac.uk/~pszgmh/fold.pdf][A tutorial on the universality and expressiveness of fold]], Graham Hutton
+
+* How do we get there?
+
+One of the things discussed in the first mentioned paper is the relationship between list processing operations and fold. There's some interesting math that proves the equivalency of lists and operations that construct them.
+
+Map and filer can be defined via foldr, which encapsulates recursion and makes it easier to reason about and transform data:
+
+#+BEGIN_SRC clojure
+(defn mapr [f coll]
+  (foldr (fn [x r] (cons (f x) r))
+         () coll))
+
+(defn filterr [pred coll]
+  (foldr (fn [x r] (if (pred x) (cons x r) r))
+         () coll))
+#+END_SRC
